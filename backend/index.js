@@ -3,6 +3,7 @@ import cookieParser from "cookie-parser";
 import cors from "cors";
 import dotenv from "dotenv";
 import connectDb from "./utils/db.js";
+import { login, register } from "./controllers/user_controllers.js";
 dotenv.config({});
 
 const app = express();
@@ -18,10 +19,14 @@ const port = process.env.PORT || 3001;
 
 app.get("/", (req, res) => {
   res.json({
-    msg: "heloooo",
+    msg: "healty",
     success: true,
   });
 });
+
+app.post("/register", register);
+app.post("/login", login);
+
 app.listen(port, () => {
   connectDb();
   console.log("listening to port ", port);
