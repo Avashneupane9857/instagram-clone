@@ -92,9 +92,9 @@ export const logOut = (req, res) => {
 export const getProfile = async (req, res) => {
   try {
     const userId = req.params.id;
-    let user = await User.findById({});
+    let user = await User.findById({_id:userId});
     res.status(200).json({
-      user,
+      user: userId,
       success: true,
     });
   } catch (e) {
