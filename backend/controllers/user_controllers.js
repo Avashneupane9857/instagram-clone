@@ -145,3 +145,56 @@ export const getSuggestedUser = async (req, res) => {
     sucess: true,
   });
 };
+
+export const followOrUnfollow = async (req, res) => {
+  try {
+    const whoFollows = req.id;
+    const whomFollow = req.params.id;
+    if ((whoFollows = whomFollow)) {
+      return res.status(400).json({
+        msg: "Cant follow or unfollow yourself",
+      });
+    }
+
+    const user = await User.findById(whoFollows);
+    const targetUser = await User.findById(whomFollow);
+    if (!user || targetUser) {
+      return res.status(400).json({
+        msg: "User khai mg",
+      });
+    }
+    const idFollowing = user.followimg.includes(whoFollows);
+    if (idFollowing) {
+      await Promise.all([
+        User.updateOne(
+          { _id: whoFollows },
+          { $pull: { followimg: whomFollow } }
+        ),
+        User.updateOne(
+          { _id: whomFollow },
+          { $pull: { followers: whoFollows } }
+        ),
+      ]);
+      res
+        .status(200)
+        .json({ msg: `u have unfollowed ${targetUser}`, success: true });
+    } else {
+      await Promise.all([
+        User.updateOne(
+          { _id: whoFollows },
+          { $push: { followimg: whomFollow } }
+        ),
+        User.updateOne(
+          { _id: whomFollow },
+          { $push: { followers: whoFollows } }
+        ),
+      ]);
+
+      res
+        .status(200)
+        .json({ msg: `u have followed ${targetUser}`, success: true });
+    }
+  } catch (err) {
+    console.log(err);
+  }
+};
