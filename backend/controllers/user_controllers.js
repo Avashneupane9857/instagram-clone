@@ -1,6 +1,8 @@
 import { User } from "../models/user_model.js";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
+import getDataUri from "../utils/datauri.js";
+import cloudinary from "../utils/cloudinary.js";
 export const register = async (req, res) => {
   const { username, email, password } = req.body;
   try {
@@ -74,4 +76,72 @@ export const login = async (req, res) => {
   } catch (e) {
     console.log(e);
   }
+};
+
+export const logOut = (req, res) => {
+  try {
+    return res.cookie("token", "", { maxAge: 0 }).json({
+      msg: "Looged out succesfullly ",
+      success: true,
+    });
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+export const getProfile = async (req, res) => {
+  try {
+    const userId = req.params.id;
+    let user = await User.findById({});
+    res.status(200).json({
+      user,
+      success: true,
+    });
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+export const editProfile = async (req, res) => {
+  const { bio, gender } = req.body;
+  const profilePic = req.file;
+  try {
+    const userId = req.id;
+    let cloudResponse;
+
+    if (profilePic) {
+      const fileUri = getDataUri(profilePic);
+      cloudResponse = await cloudinary.uploader.upload(fileUri);
+    }
+    const user = await User.findById(userId);
+    if (!user) {
+      res.status(404).json({
+        msg: "not found",
+        sucess: false,
+      });
+    }
+    if (bio) user.bio = bio;
+    if (gender) user.gender = gender;
+    if (profilePic) user.profilePic = cloudResponse.secure_url;
+    await user.save();
+    return res.status(200).json({
+      user,
+      msg: "Profile edited",
+    });
+  } catch (e) {}
+};
+
+export const getSuggestedUser = async (req, res) => {
+  const suggestedUsers = await User.find({ _id: { $ne: req.id } }).select(
+    "-password "
+  );
+  if (!suggestedUsers) {
+    res.json({
+      msg: "No other users",
+    });
+  }
+  res.status(200).json({
+    suggestedUsers,
+    sucess: true,
+  });
 };
