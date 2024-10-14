@@ -92,7 +92,7 @@ export const logOut = (req, res) => {
 export const getProfile = async (req, res) => {
   try {
     const userId = req.params.id;
-    let user = await User.findById({_id:userId});
+    let user = await User.findById({ _id: userId });
     res.status(200).json({
       user: userId,
       success: true,
@@ -149,21 +149,26 @@ export const getSuggestedUser = async (req, res) => {
 export const followOrUnfollow = async (req, res) => {
   try {
     const whoFollows = req.id;
+    console.log(whoFollows);
     const whomFollow = req.params.id;
-    if ((whoFollows = whomFollow)) {
+    console.log(whomFollow);
+
+    if (whoFollows === whomFollow) {
       return res.status(400).json({
         msg: "Cant follow or unfollow yourself",
       });
     }
 
     const user = await User.findById(whoFollows);
+    console.log(user);
     const targetUser = await User.findById(whomFollow);
-    if (!user || targetUser) {
-      return res.status(400).json({
-        msg: "User khai mg",
-      });
-    }
-    const idFollowing = user.followimg.includes(whoFollows);
+    console.log(targetUser);
+    // if (!user || targetUser) {
+    //   return res.status(400).json({
+    //     msg: "User khai mg",
+    //   });
+    // }
+    const idFollowing = user.followimg.includes(whomFollow);
     if (idFollowing) {
       await Promise.all([
         User.updateOne(
