@@ -163,7 +163,7 @@ export const followOrUnfollow = async (req, res) => {
     console.log(user);
     const targetUser = await User.findById(whomFollow);
     console.log(targetUser);
-    // if (!user || targetUser) {
+    // if (!user && !targetUser) {
     //   return res.status(400).json({
     //     msg: "User khai mg",
     //   });
